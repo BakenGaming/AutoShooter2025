@@ -15,6 +15,7 @@ public class InputManager : MonoBehaviour
     private InputAction _move, _menu;
     public void Initialize()
     {
+        Debug.Log($"Initialize {this}");
         _i = this;
         _playerInput = GetComponent<PlayerInput>();
 

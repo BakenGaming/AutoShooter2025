@@ -12,12 +12,12 @@ TagManager:
   - Water
   - UI
   - Player
+  - PlayerProjectile
   - Enemy
-  - Ground
+  - EnemyProjectile
   - 
-  - Wall
   - Collectable
-  - 
+  - EnemyPhysicalCollider
   - 
   - 
   - 
@@ -40,6 +40,21 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 1655624599
+    locked: 0
+  - name: Player Projectile
+    uniqueID: 759441035
+    locked: 0
+  - name: Enemy
+    uniqueID: 3579259005
+    locked: 0
+  - name: Enemy Projectile
+    uniqueID: 4131915243
+    locked: 0
+  - name: Collectable
+    uniqueID: 4114978639
     locked: 0
   m_RenderingLayers:
   - Default

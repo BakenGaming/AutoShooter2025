@@ -7,42 +7,57 @@ public class PlayerHandler : MonoBehaviour, IHandler
 {
     #region Variables
     [SerializeField] private PlayerStatsSO playerStatsSO;
-
+    [SerializeField] private InputReader _input;
+    private Vector3 offset = new Vector3(0f,1.25f,0f);
     private StatSystem stats;
     private HealthSystem _healthSystem;
-    private IAttackHandler _attackHandler;
     private Rigidbody2D playerRB;
     private BoxCollider2D playerCollider;
-    private Vector2 moveInput;
+    private Vector2 moveInput, lastRecordedInput, smoothMovementInput, smoothInputVelocity;
     private float moveRot;
-    private bool isPlayerActive=false;
+    private bool isPlayerActive=false, playerIsMoving=false;
     private Camera mainCam;
     private Transform firePoint;
+    private GameObject healthBarGraphic;
 
     #endregion
     #region Initialize
+    private void Awake()
+    {
+        Debug.Log($"Initialize {this}");
+        Initialize();
+    }
     public void Initialize()
     {
+        ///TESTING ONLY
+        GameManager.i.SetPlayerGO(gameObject);
+        //*****************************************
+        _input.moveEvent += SetMoveDirection;
         stats = new StatSystem(playerStatsSO);
-        _healthSystem = new HealthSystem(stats.GetPlayerHealth());
+        _healthSystem = new HealthSystem(stats.GetHealth());
         playerRB = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<BoxCollider2D>();
-        _attackHandler = GetComponent<IAttackHandler>();
         firePoint = transform.Find("FirePoint");
         mainCam = Camera.main;
+        healthBarGraphic = transform.Find("HealthBar").gameObject;
+        GetComponent<WeaponSystem>().InitializeFreshGame(GameManager.i.GetStartingWeapon());
 
         isPlayerActive = true;
+    }
+    void OnDisable()
+    {
+        _input.moveEvent -= SetMoveDirection;
     }
 
     #endregion
 
-        #region Get Functions
+    #region Get Functions
     public HealthSystem GetHealthSystem()
     {
         return _healthSystem;
     }
 
-    public StatSystem GetStatSystem()
+    public StatSystem GetStats()
     {
         return stats;
     }
@@ -59,21 +74,22 @@ public class PlayerHandler : MonoBehaviour, IHandler
     }
     #endregion
     #region Handle Actions From Input
-    private void HandleAttack()
+    private void SetMoveDirection(Vector2 _mInput)
     {
-        //_attackHandler.Attack(firePoint, stats.GetAttackDamage(), stats.GetBulletVelocity());
+        moveInput = _mInput;
     }
     #endregion
     #region Loops
     void Update()
     {
         if(!isPlayerActive) return;
-        if(!GameManager.i.GetIsPaused()) moveInput = InputManager.i.moveInput;
-        else playerRB.linearVelocity = Vector2.zero;
+        if (GameManager.i.GetIsPaused()) return;
 
-        //if(InputManager.i.attackPressed) HandleAttack();
+        if(moveInput == Vector2.zero) playerIsMoving = false;
+        else playerIsMoving = true;
 
         UpdateTimers();
+        UpdateHealthBar();
     }
     private void FixedUpdate() 
     {
@@ -84,14 +100,37 @@ public class PlayerHandler : MonoBehaviour, IHandler
             playerRB.linearVelocity = Vector2.zero;
             return;
         }
-        
-        Vector2 moveSpeed = moveInput.normalized;
-        playerRB.linearVelocity = new Vector2(moveSpeed.x * stats.GetMoveSpeed(), 
-            moveSpeed.y *.5f * stats.GetMoveSpeed());
+        SmoothedMovement();
+        RotateShip();
+        //Vector2 moveSpeed = moveInput.normalized;
+        //playerRB.linearVelocity = new Vector2(moveInput.x * stats.GetMoveSpeed(), 
+        //    moveInput.y *.5f * stats.GetMoveSpeed());
 
-        moveRot = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0,0,moveRot);
+        //moveRot = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg -90f;
+        //transform.rotation = Quaternion.Euler(0,0,moveRot);
 
+    }
+    private void UpdateHealthBar()
+    {
+        healthBarGraphic.transform.rotation = mainCam.transform.rotation;
+        healthBarGraphic.transform.position = transform.position + offset; 
+    }
+    private void SmoothedMovement()
+    {
+        smoothMovementInput = Vector2.SmoothDamp(
+            smoothMovementInput, moveInput,
+            ref smoothInputVelocity, 0.1f);
+
+        //if(smoothMovementInput == Vector2.zero) smoothMovementInput = lastRecordedInput;
+        playerRB.linearVelocity = smoothMovementInput * stats.GetMoveSpeed() * Time.deltaTime;
+    }
+    private void RotateShip()
+    {
+        if(moveInput == Vector2.zero) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(transform.forward, smoothMovementInput);
+        Quaternion rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 720f * Time.deltaTime);
+        playerRB.SetRotation(rotation);
     }
     private void UpdateTimers()
     {
@@ -99,5 +138,8 @@ public class PlayerHandler : MonoBehaviour, IHandler
     }
     #endregion
     #region Logic Checks
+    #endregion
+    #region Get Functions
+    public bool GetPlayerIsMoving(){return playerIsMoving;}
     #endregion
 }

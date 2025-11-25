@@ -10,7 +10,7 @@ public class ObjectPooler
     public static Dictionary<string, Component> poolLookup = new Dictionary<string, Component>();
     public static Dictionary<string, Queue<Component>> poolDictionary = new Dictionary<string, Queue<Component>>();
     private static GameObject emptyHolder, particleSystemPool, gameObjectPool, collectablePool, projectilePool, enemyPool;
-
+    #region Setup
     private static void SetupEmpties()
     {
         emptyHolder = new GameObject("Object Pools");
@@ -48,6 +48,8 @@ public class ObjectPooler
             default: return null;
         }
     }
+    #endregion
+    #region Pool Handling
     public static void EnqueueObject <T>(T item, string name) where T : Component
     {
         if(!item.gameObject.activeSelf) return;
@@ -94,4 +96,5 @@ public class ObjectPooler
     {
         SetupEmpties();
     }
+    #endregion
 }

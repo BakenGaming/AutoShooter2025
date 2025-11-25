@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,27 +11,19 @@ public class GameManager : MonoBehaviour
     public static GameManager i { get { return _i; } }
     [SerializeField] private Transform sysMessagePoint;
     [SerializeField] private Transform spawnPoint;
+    [SerializeField] private WeaponSO startingWeapon;
     [SerializeField] private bool isSpawningPlayer;
     private GameObject playerGO;
     private bool isPaused;
-
-
     #endregion
-    
     #region Initialize
-    private void Awake() 
+    private void Awake()
     {
+        Debug.Log($"Initialize {this}");
         _i = this;  
         SetupEmptyPools();
-        SetupObjectPools();  
-        Initialize();
-    }
-
-    private void Initialize() 
-    {
         if(isSpawningPlayer) SpawnPlayerObject();
     }
-
     private void SpawnPlayerObject()
     {
         playerGO = Instantiate(GameAssets.i.pfPlayerObject, spawnPoint);
@@ -42,8 +35,9 @@ public class GameManager : MonoBehaviour
         ObjectPooler.CreatePools();
     }
 
-    public void SetupObjectPools()
+    public void SetupObjectPools<T>(T objectToPool, int amount, string name, PoolType type) where T : Component
     {
+        ObjectPooler.SetupPool(objectToPool, amount, name, type);
         //Do the below for all objects that will need pooled for use
         //ObjectPooler.SetupPool(OBJECT, SIZE, "NAME", POOLTYPE) == Object is pulled from GameAssets, Setup object with a SO that contains size and name
         
@@ -56,11 +50,14 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    //TESTING ONLY
+    public void SetPlayerGO(GameObject _p){playerGO = _p;}
     public void PauseGame(){if(isPaused) return; else isPaused = true;}
     public void UnPauseGame(){if(isPaused) isPaused = false; else return;}
     
     public Transform GetSysMessagePoint(){ return sysMessagePoint;}
     public GameObject GetPlayerGO() { return playerGO; }
     public bool GetIsPaused() { return isPaused; }
+    public WeaponSO GetStartingWeapon(){return startingWeapon;}
 
 }
