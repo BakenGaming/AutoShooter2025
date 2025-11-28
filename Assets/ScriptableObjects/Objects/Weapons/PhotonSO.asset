@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9acf484dd77cb834599e4362ed585feb, type: 3}
-  m_Name: StartingWeapon
+  m_Name: PhotonSO
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSO
   weaponName: Basic Shot
   ID: 1
-  weaponObject: {fileID: 987980147935092050, guid: acb39c1376621284c857591d374a801e, type: 3}
   weapon: {fileID: 11400000, guid: 2469d266a517fb0449e5f6d0bdc94e57, type: 2}
+  weaponStats: {fileID: 11400000, guid: 24ceb98fdff285a45b40229811cbd710, type: 2}
   uiSprite: {fileID: 0}

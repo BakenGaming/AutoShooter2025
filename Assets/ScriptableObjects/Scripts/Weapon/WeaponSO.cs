@@ -6,5 +6,6 @@ public class WeaponSO : ScriptableObject
     public string weaponName;
     public int ID;
     public Weapon weapon;
+    public StaticWeaponStats weaponStats;
     public Sprite uiSprite;
 }

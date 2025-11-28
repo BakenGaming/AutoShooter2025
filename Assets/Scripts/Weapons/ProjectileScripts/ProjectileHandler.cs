@@ -5,14 +5,14 @@ public class ProjectileHandler : MonoBehaviour
     private Transform target;
     private Rigidbody2D rb;
     private int damage;
-    private float lifeTime, lifeTimer, speed, critChance;
+    private float lifeTimer, speed, critChance;
 
     public void Initialize(Transform _t, int _d, float _lt, float _s, float _c)
     {
         Debug.Log("Initialize Bullet");
         target = _t;
         damage = _d;
-        lifeTime = _lt;
+        lifeTimer = _lt;
         rb = GetComponent<Rigidbody2D>();
         speed = _s;
         critChance = _c;
@@ -20,7 +20,8 @@ public class ProjectileHandler : MonoBehaviour
 
     private void Update() 
     {
-        if(target == null || target.gameObject.activeInHierarchy == false) { ObjectPooler.EnqueueObject(this, "Bullet"); return;}
+        Debug.Log($"Target: {target}");
+        if(target == null || target.gameObject.activeInHierarchy == false) { ObjectPooler.EnqueueObject(this, "Bullet", PoolType.Projectiles); return;}
 
         Vector3 moveDir = (target.transform.position - transform.position).normalized;
 
@@ -29,6 +30,17 @@ public class ProjectileHandler : MonoBehaviour
         transform.eulerAngles = new Vector3(0, 0, angle - 90f);
         
         transform.position += moveDir * speed * Time.deltaTime;
+        UpdateTimers();
+    }
+
+    private void UpdateTimers()
+    {
+        lifeTimer -= Time.deltaTime;
+        if(lifeTimer <= 0) DeactivateProjectile();
+    }
+    private void DeactivateProjectile()
+    {
+        ObjectPooler.EnqueueObject(this, "Bullet", PoolType.Projectiles);
     }
 
     private void OnTriggerEnter2D(Collider2D trigger) 
@@ -39,8 +51,8 @@ public class ProjectileHandler : MonoBehaviour
         bool isCritical = Random.Range(0f,100f) < critChance;
 
         if(damageable != null) 
-            damageable.TakeDamage(isCritical);
+            damageable.TakeDamage(damage, isCritical);
 
-        ObjectPooler.EnqueueObject(this, "Bullet");
+        ObjectPooler.EnqueueObject(this, "Bullet", PoolType.Projectiles);
     }
 }

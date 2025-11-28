@@ -5,6 +5,7 @@ using UnityEngine;
 public class WeaponSystem : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
+    [SerializeField] private Transform orbitPivot;
     private Dictionary<Weapon, int> equippedWeapons;
     public void InitializeFreshGame(WeaponSO startingWeapon)
     {
@@ -36,15 +37,12 @@ public class WeaponSystem : MonoBehaviour
     private void EquipNewWeapon(WeaponSO _w)
     {
         equippedWeapons.Add(_w.weapon, _w.ID);
-        _w.weapon.InitializeWeapon(this);
-    }
-    private void UnEquipWeapon(Weapon _w)
-    {
-        
+        _w.weapon.InitializeWeapon(this, _w.weaponStats);
     }
     private void SaveWeapons()
     {
         
     }
     public Transform GetFirePoint(){return firePoint;}
+    public Transform GetOrbitPivotPoint(){return orbitPivot;}
 }

@@ -1,21 +1,21 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="Weapons/Target Weapon")]
-public class ShootAtTarget : Weapon
+[CreateAssetMenu(menuName ="Weapons/Explosive Weapon")]
+public class ExplosiveShot : Weapon
 {
-    [SerializeField] private StaticWeaponStats stats;
-    [SerializeField] private GameObject projectile;
+    private StaticWeaponStats stats;
     private PlayerHandler _handler;
     private float coolDownTimer;
     private bool readyToFire;
     private Transform target;
     private Transform firePoint;
-    public override void InitializeWeapon(WeaponSystem _w)
+    public override void InitializeWeapon(WeaponSystem _w, StaticWeaponStats _s)
     {
         _handler = _w.GetComponent<PlayerHandler>();
+        stats = _s;
         readyToFire = true;
         firePoint = _w.GetFirePoint();
-        GameManager.i.SetupObjectPools(projectile.GetComponent<ProjectileHandler>(), 50, "Bullet", PoolType.Projectiles);
+        GameManager.i.SetupObjectPools(stats.spawnedObject.GetComponent<ExplosiveProjectileHandler>(), 50, "Explosive", PoolType.Projectiles);
     }
     public override void TryActivateWeapon()
     {
@@ -24,13 +24,13 @@ public class ShootAtTarget : Weapon
             target = FindTarget();
             if(target != null)
             {
-                Debug.Log("Shoot");
-                ProjectileHandler newProjectile = ObjectPooler.DequeueObject<ProjectileHandler>("Bullet", PoolType.Projectiles);
+                //Debug.Log("Shoot");
+                ExplosiveProjectileHandler newProjectile = ObjectPooler.DequeueObject<ExplosiveProjectileHandler>("Explosive", PoolType.Projectiles);
                 newProjectile.transform.position = firePoint.position;
                 newProjectile.transform.rotation = firePoint.rotation;
                 newProjectile.gameObject.SetActive(true);
                 newProjectile.Initialize(target, stats.damage, stats.lifeTime, 
-                    _handler.GetStats().GetProjectileSpeed(), _handler.GetStats().GetCritChance());
+                    _handler.GetStats().GetProjectileSpeed(), _handler.GetStats().GetCritChance(), stats.blastRadius);
             }
             ActivateWeaponCooldown();
         }
@@ -62,7 +62,7 @@ public class ShootAtTarget : Weapon
                 closestEnemy = currentEnemy;
             }
         }
-        Debug.Log(closestEnemy);
+        //Debug.Log(closestEnemy);
         return closestEnemy.transform;        
     }
     public override StaticWeaponStats GetWeaponStats(){return stats;}

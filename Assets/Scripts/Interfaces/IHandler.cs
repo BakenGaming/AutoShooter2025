@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public interface IHandler
 {
     public abstract void Initialize();

@@ -27,8 +27,8 @@ public class EnemyHandler : MonoBehaviour, IDamageable
         healthBarGraphic.transform.position = transform.position + offset; 
     }
 
-    public void TakeDamage(bool _isCrit)
+    public void TakeDamage(int _d, bool _isCrit)
     {
-        Debug.Log($"Enemy Takes Damage, and it is CRIT {_isCrit}");
+        //Debug.Log($"Enemy Takes Damage {_d}, and it is CRIT {_isCrit}");
     }
 }

@@ -50,11 +50,12 @@ public class ObjectPooler
     }
     #endregion
     #region Pool Handling
-    public static void EnqueueObject <T>(T item, string name) where T : Component
+    public static void EnqueueObject <T>(T item, string name, PoolType pool) where T : Component
     {
         if(!item.gameObject.activeSelf) return;
 
         item.transform.position = Vector3.zero;
+        item.gameObject.transform.parent = SetParentObject(pool).transform;
         poolDictionary[name].Enqueue(item);
         item.gameObject.SetActive(false);
 
